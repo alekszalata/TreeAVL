@@ -7,7 +7,6 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
 
     private class Node<T> {
         private T value;
-        private int bfactor;
         private int height;
         private Node<T> left;
         private Node<T> right;
@@ -20,7 +19,6 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
             this.left = null;
             this.right = null;
             this.height = 1;
-            this.bfactor = 0;
             }
         }
 
@@ -118,10 +116,10 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
             current.height = maxHeight(current.left, current.right) + 1;
         }
         if (!isBalanced()) {
-            if (distance(current.left,current.right) == 2) {
+            if (distance(current.left,current.right) == 2) {  //если левый выше правого на 2 , то ротация вправо
                 current = rotationToRight(current);
             }
-            if (distance(current.left,current.right) == -2) {
+            if (distance(current.left,current.right) == -2) { //если левый ниже правого на 2 , то ротация влево
                 current = rotationToLeft(current);
             }
         }
@@ -137,21 +135,17 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
         if (current.right.right == null && current.right.left != null){
             current.right = rotationToRight(current.right);
             current = rotationToLeft(current.right);
-        } else if (current.right.left == null ||
-                current.right.left.height <= current.right.right.height){
+        } else if (current.right.left == null || current.right.left.height <= current.right.right.height){
             Node<T> node = current.right;
             node.parent = current.parent;
             current.right = node.left;
-            if (current.right != null)
-                current.right.parent = current;
+            if (current.right != null) current.right.parent = current;
             current.height = maxHeight(current.left,current.right)+1;
             current.parent = node;
-            int distance = distance(current.left,current.right);
             node.left = current;
             current = node;
-            distance = distance(current.left,current.right);
             current.height = maxHeight(current.left,current.right)+1;
-        } else{
+        } else {
             current.right = rotationToRight(current.right);
             current = rotationToLeft(current);
         }
@@ -162,8 +156,7 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
                 current.left.left == null){
             current.left = rotationToLeft(current.left);
             current = rotationToRight(current);
-        } else if (current.left.right == null ||
-                current.left.right.height <= current.left.left.height){
+        } else if (current.left.right == null || current.left.right.height <= current.left.left.height){
             Node<T> node = current.left;
             node.parent = current.parent;
             current.left = node.right;
@@ -171,10 +164,8 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
                 current.left.parent = current;
             current.height = maxHeight(current.left,current.right)+1;
             current.parent = node;
-            int distance = distance(current.left,current.right);
             node.right = current;
             current = node;
-            distance = distance(current.left,current.right);
             current.height = maxHeight(current.left,current.right)+1;
         } else {
             current.left = rotationToLeft(current.left);
