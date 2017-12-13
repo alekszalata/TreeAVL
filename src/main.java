@@ -9,6 +9,9 @@ public class main {
             avl.input(5);
             avl.input(10);
             avl.input(1);
+            avl.input(6);
+            avl.input(7);
+            avl.input(8);
             avl.print();
 
         }
