@@ -1,9 +1,9 @@
-import java.util.AbstractSet;
+import java.util.Collection;
 import java.util.Set;
 
 
 
-public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements Set<T> {
+public class AVLtree<T extends Comparable<T>> implements Set<T> {
 
     private class Node<T> {
         private T value;
@@ -52,7 +52,7 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
     private Node<T> max(Node<T> current){  //максимальное значение
         if (current.right == null) return current;
         return max(current.right);
-    }  //макс значение дерева
+    }
 
     public T max() {
         return  max(root).value;
@@ -249,6 +249,46 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
     }
 
     @Override
+    public boolean remove(Object o) {
+        T t = (T) o;
+        if (find(t) == null) return false;
+        delete(t);
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        this.forEach(this::remove);
+    }
+
+    @Override
+    public Object[] toArray() {
+        Object[] result = new Object[size];
+        int index = 0;
+        for (T it : this) {
+            result[index] = it;
+            index++;
+        }
+        return result;
+    }
+
+    @Override
+    public boolean add(T t) {
+        if (find(t) != null) return false;
+        input(t);
+        return true;
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object it : c)
+            if (!contains(it))
+                return false;
+        return true;
+    }
+
+
+    @Override
     public iterator iterator() {
         return new iterator();
     }
@@ -268,5 +308,6 @@ public class AVLtree<T extends Comparable<T>> extends AbstractSet<T> implements 
         }
 
     }
+
     }
 
