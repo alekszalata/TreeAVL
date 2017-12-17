@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 
@@ -239,6 +241,14 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
     }
 
     @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object it : c)
+            if (!contains(it))
+                return false;
+        return true;
+    }
+
+    @Override
     public int size() {
         return size;
     }
@@ -257,19 +267,23 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
     }
 
     @Override
-    public void clear() {
-        this.forEach(this::remove);
+        public boolean removeAll(Collection<?> c) {
+            int counter = this.size;
+            for (Object it : c)
+                if (contains(it))
+                    remove((T) it);
+            return this.size < counter; //если размер после удаления меньше размера начального дерева , значит удалилось
     }
 
     @Override
-    public Object[] toArray() {
-        Object[] result = new Object[size];
-        int index = 0;
+    public boolean retainAll(Collection<?> c){
+        int counter = this.size;
+        ArrayList list = new ArrayList();
         for (T it : this) {
-            result[index] = it;
-            index++;
+            if (!c.contains(it)) list.add(it);
         }
-        return result;
+        removeAll(list);
+        return this.size < counter;
     }
 
     @Override
@@ -280,13 +294,50 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean addAll(Collection<? extends T> c) {
+        int counter = this.size;
         for (Object it : c)
-            if (!contains(it))
-                return false;
-        return true;
+            add((T) it);
+        return this.size > counter;   //если размер после вставки больше размера пустого дерева , значит вставилось
     }
 
+    @Override
+    public void clear() {
+        for (Object it : this)
+                remove((T) it);
+    }
+
+    @Override
+    public <T1> T1[] toArray(T1[] a) {
+        if (a.length >= size) {
+            int x = 0;
+            for (T i : this) {
+                a[x] = (T1) i;
+                x++;
+            }
+            return a;
+        } else {
+            T1[] b = (T1[]) new Object[size];
+            int x = 0;
+            for (T i : this) {
+                b[x] = (T1) i;
+                x++;
+            }
+            return b;
+        }
+    }
+
+    @Override
+    public Object[] toArray() {
+        Object[] array = new Object[size];
+        int i = 0;
+        for (T it : this) {
+            array[i] = it;
+            i++;
+        }
+        return array;
+    }
+    
 
     @Override
     public iterator iterator() {
