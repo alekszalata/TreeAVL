@@ -1,8 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
+import java.util.*;
 
 
 public class AVLtree<T extends Comparable<T>> implements Set<T> {
@@ -347,16 +343,43 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
 
     public class iterator implements java.util.Iterator<T> {
 
+        private Node<T> it = null;
+        private Stack<Node<T>> stack = new Stack<>();
+
+        public iterator() {
+            it = root;
+            if (it == null) return;
+            stack.push(null);
+            while (it.left != null) {
+                stack.push(it);
+                it = it.left;
+            }
+        }
+
+
         @Override
         public boolean hasNext() {
-            throw new UnsupportedOperationException();
+            return it != null;
         }
 
 
         @Override
-        public T next(){
-            throw new UnsupportedOperationException();
+        public T next() {
+            T value;
+            if (hasNext()) value = it.value;
+            else throw new NoSuchElementException();
+            if (it.right != null) {
+                it = it.right;
+                while (it.left != null) {
+                    stack.push(it);
+                    it = it.left;
+                }
+            } else it = stack.pop();
+            return value;
         }
+
+        @Override
+        public void remove() {throw new UnsupportedOperationException();}
 
     }
 
