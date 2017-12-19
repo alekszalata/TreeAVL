@@ -64,14 +64,14 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         return isBalanced(root);
     }
 
-    private int maxHeight(Node<T> x, Node<T> y){   //макс высота
-        if (x == null && y == null) return 0;
-        if (x == null) return y.height;
-        if (y == null) return x.height;
-        return Math.max(x.height,y.height);
+    private int maxHeight(Node<T> x){   //макс высота из правого и левого
+        if (x.left == null && x.right == null) return 0;
+        if (x.left == null) return x.right.height;
+        if (x.right == null) return x.left.height;
+        return Math.max(x.right.height,x.left.height);
     }
 
-    private int distance(Node<T> x , Node<T> y) { //расстояние между точками x и y
+    private int balancefactor(Node<T> x , Node<T> y) { //расстояние между высотами x и y
         if (x == null && y == null) return 0;
         if (x == null) return -y.height;
         if (y == null) return x.height;
@@ -99,7 +99,66 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         return find(root, value);
     }
 
-    private Node input(Node<T> current , T value , Node<T> parent){
+    private Node<T> SmallRotationToLeft(Node<T> current) {
+        if (current.right.left == null || current.right.left.height <= current.right.right.height) {
+            Node<T> node = current.right;
+            node.parent = current.parent;
+            current.right = node.left;
+            if (current.right != null) current.right.parent = current;
+            current.height = maxHeight(current) + 1;
+            current.parent = node;
+            node.left = current;
+            current = node;
+            current.height = maxHeight(current) + 1;
+        }
+        return current;
+
+    }
+
+    private Node<T> SmallRotationToRight(Node<T> current){
+        if (current.left.right == null || current.left.right.height <= current.left.left.height) {
+            Node<T> node = current.left;
+            node.parent = current.parent;
+            current.left = node.right;
+            if (current.left != null)
+                current.left.parent = current;
+            current.height = maxHeight(current) + 1;
+            current.parent = node;
+            node.right = current;
+            current = node;
+            current.height = maxHeight(current) + 1;
+        }
+        return current;
+    }
+
+    private Node<T> BigRotationToLeft(Node<T> current) {
+        if (current.right.right == null && current.right.left != null || !(current.right.left == null || current.right.left.height <= current.right.right.height)) {
+            current.right = SmallRotationToRight(current.right);
+            current = SmallRotationToLeft(current);
+        }
+        return current;
+    }
+    private Node<T> BigRotationToRight(Node<T> current){
+        if (current.left.left == null && current.left.right != null  || !(current.left.right == null || current.left.right.height <= current.left.left.height)) {
+            current.left = SmallRotationToLeft(current.left);
+            current = SmallRotationToRight(current);
+        }
+        return current;
+    }
+
+    private Node balance(Node<T> current) {
+        if (balancefactor(current.left,current.right) == 2) {  //если левый выше правого на 2 , то ротация вправо
+            current = BigRotationToRight(current);
+            current = SmallRotationToRight(current);
+        }
+        if (balancefactor(current.left,current.right) == -2) { //если левый ниже правого на 2 , то ротация влево
+            current = BigRotationToLeft(current);
+            current = SmallRotationToLeft(current);
+        }
+        return current;
+    }
+
+    private Node input(Node<T> current , T value , Node<T> parent){ //Проверить если вставлять такой же элем
         if (current == null){
             size++;
             return new Node<T>(value, parent);
@@ -107,19 +166,14 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         int comparison = value.compareTo(current.value);
         if (comparison > 0) {
             current.right = input(current.right , value , current);  //если значение больше "рута"
-            current.height = maxHeight(current.left, current.right) + 1;
+            current.height = maxHeight(current) + 1;
         }
         if (comparison < 0){
             current.left = input(current.left , value , current);   //если значение меньше "рута"
-            current.height = maxHeight(current.left, current.right) + 1;
+            current.height = maxHeight(current) + 1;
         }
-        if (!isBalanced()) {
-            if (distance(current.left,current.right) == 2) {  //если левый выше правого на 2 , то ротация вправо
-                current = rotationToRight(current);
-            }
-            if (distance(current.left,current.right) == -2) { //если левый ниже правого на 2 , то ротация влево
-                current = rotationToLeft(current);
-            }
+        if (!isBalanced()) {   //вынести в др функцию
+            current = balance(current);
         }
         return current;
     }
@@ -128,48 +182,6 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         root = input(root,value,null);
     }
 
-
-    private Node<T> rotationToLeft(Node<T> current){
-        if (current.right.right == null && current.right.left != null){
-            current.right = rotationToRight(current.right);
-            current = rotationToLeft(current);
-        } else if (current.right.left == null || current.right.left.height <= current.right.right.height){
-            Node<T> node = current.right;
-            node.parent = current.parent;
-            current.right = node.left;
-            if (current.right != null) current.right.parent = current;
-            current.height = maxHeight(current.left,current.right)+1;
-            current.parent = node;
-            node.left = current;
-            current = node;
-            current.height = maxHeight(current.left,current.right)+1;
-        } else {
-            current.right = rotationToRight(current.right);
-            current = rotationToLeft(current);
-        }
-        return current;
-    }
-    private Node<T> rotationToRight(Node<T> current){
-        if (current.left.right != null && current.left.left == null){
-            current.left = rotationToLeft(current.left);
-            current = rotationToRight(current);
-        } else if (current.left.right == null || current.left.right.height <= current.left.left.height){
-            Node<T> node = current.left;
-            node.parent = current.parent;
-            current.left = node.right;
-            if (current.left != null)
-                current.left.parent = current;
-            current.height = maxHeight(current.left,current.right)+1;
-            current.parent = node;
-            node.right = current;
-            current = node;
-            current.height = maxHeight(current.left,current.right)+1;
-        } else {
-            current.left = rotationToLeft(current.left);
-            current = rotationToRight(current);
-        }
-        return current;
-    }
 
     private Node<T> delete(Node<T> current,T value){
         if (current == null) return null;
@@ -201,11 +213,8 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
             }
         }
         if (current != null){
-            current.height = maxHeight(current.left,current.right)+1;
-            if (distance(current.left , current.right) == -2)
-                current = rotationToLeft(current);
-            else if (distance(current.left , current.right) == 2)
-                current = rotationToRight(current);
+            current.height = maxHeight(current)+1;
+            current = balance(current);
         }
         return current;
     }
@@ -379,7 +388,7 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         }
 
         @Override
-        public void remove() {throw new UnsupportedOperationException();}
+        public void remove() {throw new UnsupportedOperationException();} //добавить
 
     }
 
