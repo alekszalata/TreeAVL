@@ -15,6 +15,7 @@ public class main {
             avl.input(10);
             avl.input(13);
             avl.input(15);
+            avl.input(16);
             avl.print();
 
         }

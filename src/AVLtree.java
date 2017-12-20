@@ -71,7 +71,7 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         return Math.max(x.right.height,x.left.height);
     }
 
-    private int balancefactor(Node<T> x , Node<T> y) { //расстояние между высотами x и y
+    private int balancefactor(Node<T> x , Node<T> y) {
         if (x == null && y == null) return 0;
         if (x == null) return -y.height;
         if (y == null) return x.height;
@@ -79,7 +79,7 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
     }
 
 
-    public Node<T> find(Node<T> start, T value) {   //найти точку
+    private Node<T> find(Node<T> start, T value) {   //найти точку
         int comparison = value.compareTo(start.value);
         if (comparison == 0) {
             return start;
@@ -94,7 +94,7 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         }
     }
 
-    private Node<T> find(T value) {
+    public Node<T> find(T value) {
         if (root == null) return null;
         return find(root, value);
     }
@@ -293,9 +293,9 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
 
     @Override
     public boolean add(T t) {
-        if (find(t) != null) return false;
+        int size = this.size;
         input(t);
-        return true;
+        return this.size > size;
     }
 
     @Override
@@ -320,6 +320,10 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
                 a[x] = (T1) i;
                 x++;
             }
+            do{
+                a[x] = null;
+                x++;
+            } while (x < size);
             return a;
         } else {
             T1[] b = (T1[]) new Object[size];
@@ -388,9 +392,9 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         }
 
         @Override
-        public void remove() {throw new UnsupportedOperationException();} //добавить
+        public void remove() {AVLtree.this.remove(it);} //добавить
 
     }
 
-    }
+}
 
