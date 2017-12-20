@@ -392,7 +392,7 @@ public class AVLtree<T extends Comparable<T>> implements Set<T> {
         }
 
         @Override
-        public void remove() {AVLtree.this.remove(it);} //добавить
+        public void remove() {throw new UnsupportedOperationException("remove is not supported");} //добавить
 
     }
 
